@@ -48,7 +48,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.decelerationRate = .fast
         view.addSubview(scrollView)
-
+        scrollView.contentInsetAdjustmentBehavior = .never
         scrollView.addSubview(contentView)
     }
 
@@ -69,13 +69,19 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func setupGridView() {
-        gridView.isHidden = true // пока не готово или пока не зумнули
+        contentView.backgroundColor = .clear
+        gridView.backgroundColor = .clear
+
+        gridView.isHidden = true
+        gridView.alpha = 1
+
         contentView.addSubview(gridView)
 
-        // Тап по клетке (пока просто красим в "4" — красный, для теста)
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        tap.cancelsTouchesInView = false
         contentView.addGestureRecognizer(tap)
     }
+
 
     private func layoutInitial() {
         let size = CGSize(width: 200, height: 200)
@@ -117,16 +123,23 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
     // MARK: - LOD (preview <-> grid)
     private func updateLOD() {
-        let z = scrollView.zoomScale
-        let showGrid = (z >= gridThreshold) && gridReady
+        let showGrid = gridReady && (scrollView.zoomScale >= gridThreshold)
 
-        // Превью всегда есть, но скрываем когда показываем сетку
         previewImageView.isHidden = false
-        gridView.isHidden = true
+        previewImageView.alpha = 1
 
-        // Чуть оптимизации: цифры только когда клетка большая
-        gridView.showNumbers = showGrid
+        if showGrid {
+            gridView.isHidden = false
+            gridView.alpha = 1
+            gridView.showNumbers = true
+        } else {
+            gridView.alpha = 0
+            gridView.isHidden = true
+            gridView.showNumbers = false
+        }
     }
+
+
     
 
     // MARK: - Background convert
@@ -150,6 +163,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
                 self.gridView.cellSize = 1
                 self.gridView.configure(width: result.w, height: result.h, numbers: result.numbers)
+                self.gridView.setNeedsDisplay()
+
 
                 // пересчитать fit scale под реальный размер
                 let fitScale = min(self.view.bounds.width / size.width, self.view.bounds.height / size.height)
