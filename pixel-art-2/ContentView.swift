@@ -1,24 +1,13 @@
-//
-//  ContentView.swift
-//  pixel-art-2
-//
-//  Created by Илья Ярославцев on 16.12.2025.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        PixelArtViewControllerWrapper()
+            .ignoresSafeArea() // чтобы было во весь экран
     }
 }
 
 #Preview {
     ContentView()
 }
+

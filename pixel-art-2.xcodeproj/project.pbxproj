@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B02EF19B9F0022FB88 /* ViewController.swift */; };
+		5CE049B32EF19C6F0022FB88 /* TiledGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */; };
+		5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5CE049902EF18FB30022FB88 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +33,9 @@
 		5CE049822EF18FB20022FB88 /* pixel-art-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pixel-art-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CE0498F2EF18FB30022FB88 /* pixel-art-2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pixel-art-2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CE049992EF18FB30022FB88 /* pixel-art-2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pixel-art-2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5CE049B02EF19B9F0022FB88 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiledGridView.swift; sourceTree = "<group>"; };
+		5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelArtConverter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +84,9 @@
 		5CE049792EF18FB20022FB88 = {
 			isa = PBXGroup;
 			children = (
+				5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */,
+				5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */,
+				5CE049B02EF19B9F0022FB88 /* ViewController.swift */,
 				5CE049842EF18FB20022FB88 /* pixel-art-2 */,
 				5CE049922EF18FB30022FB88 /* pixel-art-2Tests */,
 				5CE0499C2EF18FB30022FB88 /* pixel-art-2UITests */,
@@ -236,6 +248,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */,
+				5CE049B32EF19C6F0022FB88 /* TiledGridView.swift in Sources */,
+				5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
