@@ -8,6 +8,22 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let imageName = "pixel-heart-200"
     
     private var selectedNumber: UInt8 = 4
+    private let paletteNumbers: [UInt8] = [1,2,3,4,5,6,7,8,9]
+    private let paletteColors: [UInt8: UIColor] = [
+        1: .systemRed,
+        2: .systemOrange,
+        3: .systemYellow,
+        4: .systemGreen,
+        5: .systemMint,
+        6: .systemTeal,
+        7: .systemBlue,
+        8: .systemIndigo,
+        9: .systemPurple
+    ]
+
+    private let paletteBar = UIStackView()
+    private var paletteButtons: [UIButton] = []
+
 
     private var totalForSelected = 0
     private var paintedForSelected = 0
@@ -22,14 +38,88 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
         setupScrollView()
         setupGridView()
+        setupPaletteBar()
         convertInBackground()
     }
+    
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollView.frame = view.bounds
         centerIfNeeded()
     }
+    
+    private func setupPaletteBar() {
+        paletteBar.axis = .horizontal
+        paletteBar.alignment = .center
+        paletteBar.distribution = .fillEqually
+        paletteBar.spacing = 8
+        paletteBar.translatesAutoresizingMaskIntoConstraints = false
+
+        // лёгкая подложка, чтобы было видно на любом фоне
+        paletteBar.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.95)
+        paletteBar.layer.cornerRadius = 14
+        paletteBar.layer.masksToBounds = true
+        paletteBar.isLayoutMarginsRelativeArrangement = true
+        paletteBar.layoutMargins = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+
+        view.addSubview(paletteBar)
+
+        NSLayoutConstraint.activate([
+            paletteBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            paletteBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            paletteBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            paletteBar.heightAnchor.constraint(equalToConstant: 64)
+        ])
+
+        paletteButtons = paletteNumbers.map { n in
+            let b = makePaletteButton(number: n, color: paletteColors[n] ?? .clear)
+            paletteBar.addArrangedSubview(b)
+            return b
+        }
+
+        updatePaletteSelectionUI()
+    }
+    
+    private func makePaletteButton(number: UInt8, color: UIColor) -> UIButton {
+        var config = UIButton.Configuration.plain()
+        config.title = "\(number)"
+        config.baseForegroundColor = .white
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0)
+
+        let b = UIButton(configuration: config)
+        b.tag = Int(number)
+        b.backgroundColor = color
+        b.layer.cornerRadius = 12
+        b.layer.masksToBounds = true
+        b.titleLabel?.font = .systemFont(ofSize: 16, weight: .heavy)
+
+        b.addTarget(self, action: #selector(didTapPalette(_:)), for: .touchUpInside)
+        return b
+    }
+
+    @objc private func didTapPalette(_ sender: UIButton) {
+        selectedNumber = UInt8(sender.tag)
+
+        // если нужно — прокинь в gridView (если у тебя есть такое свойство)
+        // gridView.selectedNumber = selectedNumber
+
+        updatePaletteSelectionUI()
+        recalcProgress() // у тебя уже есть :contentReference[oaicite:2]{index=2}
+
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func updatePaletteSelectionUI() {
+        for b in paletteButtons {
+            let isSelected = UInt8(b.tag) == selectedNumber
+            b.layer.borderWidth = isSelected ? 3 : 0
+            b.layer.borderColor = UIColor.white.withAlphaComponent(0.85).cgColor
+            b.transform = isSelected ? CGAffineTransform(scaleX: 1.06, y: 1.06) : .identity
+        }
+    }
+
+
     
     private func recalcProgress() {
         let w = gridView.gridWidth

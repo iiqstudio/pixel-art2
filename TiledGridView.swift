@@ -23,13 +23,17 @@ final class TiledGridView: UIView {
     var baseFillColor: UIColor = UIColor(white: 0.92, alpha: 1)
 
     private let fillColors: [UInt8: UIColor] = [
-        1: UIColor(white: 0.6, alpha: 1),
-        2: .blue,
-        3: .orange,
-        4: UIColor(red: 254/255, green: 0, blue: 0, alpha: 1),
-        5: .white,
-        9: .black
+        1: .systemRed,
+        2: .systemOrange,
+        3: .systemYellow,
+        4: .systemGreen,
+        5: .systemMint,
+        6: .systemTeal,
+        7: .systemBlue,
+        8: .systemIndigo,
+        9: .systemPurple
     ]
+
 
     override init(frame: CGRect) {
         super.init(frame: frame)
