@@ -6,6 +6,15 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let gridView = TiledGridView()
 
     private let imageName = "pixel-heart-200"
+    
+    private var selectedNumber: UInt8 = 4
+
+    private var totalForSelected = 0
+    private var paintedForSelected = 0
+    
+    private var isPainting = false
+    private var lastPaintedCell: (x: Int, y: Int)? = nil
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +30,44 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         scrollView.frame = view.bounds
         centerIfNeeded()
     }
+    
+    private func recalcProgress() {
+        let w = gridView.gridWidth
+        let h = gridView.gridHeight
+        guard w > 0, h > 0 else { return }
+
+        let selected = selectedNumber
+
+        var total = 0
+        var paintedCount = 0
+
+        for i in 0..<(w * h) {
+            if gridView.numbers[i] == selected {
+                total += 1
+                if gridView.painted[i] == selected { paintedCount += 1 }
+            }
+        }
+
+        totalForSelected = total
+        paintedForSelected = paintedCount
+
+        if total > 0 {
+            let pct = Int((Double(paintedCount) / Double(total)) * 100.0)
+            print("Selected \(selected): \(paintedCount)/\(total) = \(pct)%")
+        } else {
+            print("Selected \(selected): 0 cells")
+        }
+    }
+
+    private func bumpProgressIfNeeded(painted: Bool) {
+        guard painted else { return }
+        paintedForSelected += 1
+        if totalForSelected > 0 {
+            let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
+            print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
+        }
+    }
+
 
     private func setupScrollView() {
         scrollView.frame = view.bounds
@@ -34,15 +81,58 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         scrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(scrollView)
     }
+    
+    @objc private func handleLongPress(_ gr: UILongPressGestureRecognizer) {
+        let p = gr.location(in: gridView)
+        let x = Int(floor(p.x))
+        let y = Int(floor(p.y))
+
+        func paintAt(_ x: Int, _ y: Int) {
+            if let last = lastPaintedCell, last.x == x, last.y == y { return }
+            lastPaintedCell = (x, y)
+
+            let ok = gridView.paintIfMatches(x: x, y: y, selected: selectedNumber)
+            if ok { bumpProgressIfNeeded(painted: true) }
+        }
+
+        switch gr.state {
+        case .began:
+            isPainting = true
+            lastPaintedCell = nil
+            scrollView.isScrollEnabled = false
+            paintAt(x, y)
+
+        case .changed:
+            guard isPainting else { return }
+            paintAt(x, y)
+
+        case .ended, .cancelled, .failed:
+            isPainting = false
+            lastPaintedCell = nil
+            scrollView.isScrollEnabled = true
+
+        default:
+            break
+        }
+    }
+
 
     private func setupGridView() {
         gridView.backgroundColor = .clear
         gridView.isOpaque = false
         scrollView.addSubview(gridView)
 
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        longPress.minimumPressDuration = 0.18
+        longPress.allowableMovement = 1000
+        longPress.cancelsTouchesInView = false
+        gridView.addGestureRecognizer(longPress)
+
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        tap.cancelsTouchesInView = false
         gridView.addGestureRecognizer(tap)
     }
+
 
     private func applyGridSize(w: Int, h: Int) {
         let size = CGSize(width: w, height: h)
@@ -78,17 +168,26 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
                 guard let result else { return }
                 self.gridView.cellSize = 1
                 self.gridView.configure(width: result.w, height: result.h, numbers: result.numbers)
+                self.recalcProgress()
                 self.applyGridSize(w: result.w, h: result.h)
             }
         }
     }
 
     @objc private func handleTap(_ gr: UITapGestureRecognizer) {
+        if isPainting { return }
+
         let p = gr.location(in: gridView)
         let x = Int(floor(p.x))
         let y = Int(floor(p.y))
-        gridView.paintCell(x: x, y: y, colorNumber: 4)
+
+        let ok = gridView.paintIfMatches(x: x, y: y, selected: selectedNumber)
+        if ok {
+            bumpProgressIfNeeded(painted: true)
+        }
     }
+
+
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         gridView

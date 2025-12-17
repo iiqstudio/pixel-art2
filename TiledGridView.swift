@@ -74,6 +74,26 @@ final class TiledGridView: UIView {
         )
         setNeedsDisplay(rect)
     }
+    
+    func numberAt(x: Int, y: Int) -> UInt8 {
+        guard x >= 0, y >= 0, x < gridWidth, y < gridHeight else { return 0 }
+        return numbers[y * gridWidth + x]
+    }
+
+    func paintIfMatches(x: Int, y: Int, selected: UInt8) -> Bool {
+        guard x >= 0, y >= 0, x < gridWidth, y < gridHeight else { return false }
+        let idx = y * gridWidth + x
+        let n = numbers[idx]
+        guard n != 0 else { return false }
+        guard n == selected else { return false }
+        if painted[idx] == selected { return true }
+
+        painted[idx] = selected
+        let rect = CGRect(x: CGFloat(x) * cellSize, y: CGFloat(y) * cellSize, width: cellSize, height: cellSize)
+        setNeedsDisplay(rect)
+        return true
+    }
+
 
     override func draw(_ rect: CGRect) {
         guard gridWidth > 0,
