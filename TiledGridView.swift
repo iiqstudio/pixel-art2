@@ -4,6 +4,9 @@ final class TiledGridView: UIView {
 
     override class var layerClass: AnyClass { CATiledLayer.self }
     private var tiledLayer: CATiledLayer { layer as! CATiledLayer }
+    private let highlightFillColor = UIColor(white: 0.60, alpha: 0.55)
+
+
 
     var gridWidth: Int = 0
     var gridHeight: Int = 0
@@ -16,6 +19,12 @@ final class TiledGridView: UIView {
 
     var currentZoomScale: CGFloat = 1 {
         didSet { setNeedsDisplay() }
+    }
+    
+    var selectedNumber: UInt8 = 0 {
+        didSet {
+            setNeedsDisplay()
+        }
     }
 
     var minCellPixelsForText: CGFloat = 26
@@ -141,13 +150,23 @@ final class TiledGridView: UIView {
                 )
 
                 let p = painted[idx]
+
                 if p != 0, let c = fillColors[p] {
+                    // уже закрашено — рисуем цвет
                     ctx.setFillColor(c.cgColor)
                     ctx.fill(cellRect)
                 } else {
+                    // фон
                     ctx.setFillColor(baseFillColor.cgColor)
                     ctx.fill(cellRect)
+
+                    // 👇 СЕРАЯ ПОДСВЕТКА нужных клеток
+                    if num == selectedNumber {
+                        ctx.setFillColor(highlightFillColor.cgColor)
+                        ctx.fill(cellRect)
+                    }
                 }
+
 
                 if showGrid {
                     ctx.stroke(cellRect.insetBy(dx: inset, dy: inset))

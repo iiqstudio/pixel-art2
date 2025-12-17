@@ -100,6 +100,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
     @objc private func didTapPalette(_ sender: UIButton) {
         selectedNumber = UInt8(sender.tag)
+        gridView.selectedNumber = selectedNumber
 
         // если нужно — прокинь в gridView (если у тебя есть такое свойство)
         // gridView.selectedNumber = selectedNumber
