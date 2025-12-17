@@ -2,28 +2,26 @@ import UIKit
 
 final class TiledGridView: UIView {
 
-    // MARK: - CATiledLayer
     override class var layerClass: AnyClass { CATiledLayer.self }
-
     private var tiledLayer: CATiledLayer { layer as! CATiledLayer }
 
-    // MARK: - Data
     var gridWidth: Int = 0
     var gridHeight: Int = 0
-    var numbers: [UInt8] = []          // номер цвета на клетку
-    var painted: [UInt8] = []          // 0 = не закрашено, иначе номер цвета
+    var numbers: [UInt8] = []
+    var painted: [UInt8] = []
 
-    // Размер клетки в "логических" координатах вью (у нас 1 клетка = 1 point)
-    // При зуме scrollView увеличит вью, и клетка станет большой на экране.
     var cellSize: CGFloat = 1
-
-    // Включать ли цифры
     var showNumbers: Bool = true
 
-    // Порог, когда цифры можно рисовать (чтобы не убивать FPS)
+    // ВАЖНО: выставляем из ViewController = scrollView.zoomScale
+    var currentZoomScale: CGFloat = 1 {
+        didSet {
+            // при смене зума можно не дёргать, но так цифры/линии будут обновляться
+            setNeedsDisplay()
+        }
+    }
     var minCellPixelsForText: CGFloat = 18
 
-    // Цвета для заливки по номеру (пример)
     private let fillColors: [UInt8: UIColor] = [
         1: UIColor(white: 0.6, alpha: 1),
         2: .blue,
@@ -47,7 +45,6 @@ final class TiledGridView: UIView {
         backgroundColor = .clear
         isOpaque = false
 
-        // Настройка тайлинга
         tiledLayer.levelsOfDetail = 4
         tiledLayer.levelsOfDetailBias = 4
         tiledLayer.tileSize = CGSize(width: 256, height: 256)
@@ -75,29 +72,87 @@ final class TiledGridView: UIView {
         setNeedsDisplay(rect)
     }
 
-    // MARK: - Drawing
     override func draw(_ rect: CGRect) {
-        guard gridWidth > 0, gridHeight > 0, numbers.count == gridWidth * gridHeight else { return }
-        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        guard gridWidth > 0,
+              gridHeight > 0,
+              numbers.count == gridWidth * gridHeight,
+              let ctx = UIGraphicsGetCurrentContext()
+        else { return }
 
-        // Определяем какие клетки попали в rect
+        ctx.clear(rect)
+
+        // Для сетки лучше оставить антиалиасинг ВКЛ, иначе будут "точки"
+        ctx.setAllowsAntialiasing(true)
+        ctx.setShouldAntialias(true)
+
         let x0 = max(Int(floor(rect.minX / cellSize)), 0)
         let y0 = max(Int(floor(rect.minY / cellSize)), 0)
         let x1 = min(Int(ceil(rect.maxX / cellSize)), gridWidth)
         let y1 = min(Int(ceil(rect.maxY / cellSize)), gridHeight)
 
-        // Текущая "видимая" величина клетки на экране (в пикселях) — грубо:
-        let screenScale = UIScreen.main.scale
-        // rect уже в координатах view; реальный размер на экране зависит от zoom, его мы сюда не знаем точно,
-        // но можно ориентироваться по текущему transform.a (он ~ zoomScale).
-        let approxZoom = self.transform.a
-        let cellPixels = cellSize * approxZoom * screenScale
+        let zoom = max(currentZoomScale, 1)
 
-        // Рисуем клетки
+        // 1 экранный пиксель
+        let onePixel = 1.0 / (UIScreen.main.scale * zoom)
+        ctx.setLineWidth(onePixel)
+        ctx.setStrokeColor(UIColor(white: 0, alpha: 0.25).cgColor)
+
+        // 1) закрашенные клетки (если есть)
         for y in y0..<y1 {
             for x in x0..<x1 {
                 let idx = y * gridWidth + x
+                let paintedNum = painted[idx]
+                if paintedNum != 0, let color = fillColors[paintedNum] {
+                    let cellRect = CGRect(
+                        x: CGFloat(x) * cellSize,
+                        y: CGFloat(y) * cellSize,
+                        width: cellSize,
+                        height: cellSize
+                    )
+                    ctx.setFillColor(color.cgColor)
+                    ctx.fill(cellRect)
+                }
+            }
+        }
+
+        // 2) классическая сетка: обводим каждую клетку
+        // Чтобы линии не "двоились", рисуем strokeInset на полпикселя
+        let inset = onePixel * 0.5
+
+        for y in y0..<y1 {
+            for x in x0..<x1 {
+                let r = CGRect(
+                    x: CGFloat(x) * cellSize,
+                    y: CGFloat(y) * cellSize,
+                    width: cellSize,
+                    height: cellSize
+                ).insetBy(dx: inset, dy: inset)
+
+                ctx.stroke(r)
+            }
+        }
+
+        // 3) цифры
+        let cellPixels = cellSize * zoom * UIScreen.main.scale
+        guard showNumbers, cellPixels >= minCellPixelsForText else { return }
+        let fontSize = max(min((cellPixels * 0.55) / (UIScreen.main.scale * zoom), 14.0 / zoom), 3.0 / zoom)
+        guard cellPixels >= 22 else { return }
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: UIFont.monospacedDigitSystemFont(
+                ofSize: fontSize,
+                weight: .semibold
+            ),
+            .foregroundColor: UIColor(white: 0, alpha: 0.55)
+        ]
+
+
+        for y in y0..<y1 {
+            for x in x0..<x1 {
+                let idx = y * gridWidth + x
+                if painted[idx] != 0 { continue }
+
                 let num = numbers[idx]
+                if num == 0 { continue }
 
                 let cellRect = CGRect(
                     x: CGFloat(x) * cellSize,
@@ -106,37 +161,19 @@ final class TiledGridView: UIView {
                     height: cellSize
                 )
 
-                // Заливка если закрашено
-                let paintedNum = painted[idx]
-                if paintedNum != 0, let c = fillColors[paintedNum] {
-                    ctx.setFillColor(c.cgColor)
-                    ctx.fill(cellRect)
-                }
-
-                // Контур клетки (тонкий)
-                ctx.setStrokeColor(UIColor(white: 0, alpha: 0.08).cgColor)
-                ctx.setLineWidth(0.5 / (approxZoom > 0 ? approxZoom : 1))
-                ctx.stroke(cellRect)
-
-                // Цифры рисуем только когда клетка достаточно крупная
-                if showNumbers, num != 0, cellPixels >= minCellPixelsForText, paintedNum == 0 {
-                    let text = "\(num)"
-                    let attrs: [NSAttributedString.Key: Any] = [
-                        .font: UIFont.systemFont(ofSize: min(14, cellPixels * 0.55), weight: .medium),
-                        .foregroundColor: UIColor(white: 0, alpha: 0.55)
-                    ]
-                    let ns = NSString(string: text)
-                    let size = ns.size(withAttributes: attrs)
-                    let tRect = CGRect(
-                        x: cellRect.midX - size.width/2,
-                        y: cellRect.midY - size.height/2,
-                        width: size.width,
-                        height: size.height
-                    )
-                    ns.draw(in: tRect, withAttributes: attrs)
-                }
+                let text = "\(num)"
+                let s = NSString(string: text)
+                let size = s.size(withAttributes: attrs)
+                let tr = CGRect(
+                    x: cellRect.midX - size.width / 2,
+                    y: cellRect.midY - size.height / 2,
+                    width: size.width,
+                    height: size.height
+                )
+                s.draw(in: tr, withAttributes: attrs)
             }
         }
     }
+
 }
 

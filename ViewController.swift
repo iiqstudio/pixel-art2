@@ -138,6 +138,51 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             gridView.showNumbers = false
         }
     }
+    
+    private func makeGrayscalePreview(w: Int, h: Int, numbers: [UInt8]) -> UIImage? {
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerPixel = 4
+        let bytesPerRow = w * bytesPerPixel
+        var data = [UInt8](repeating: 0, count: h * bytesPerRow)
+
+        func putPixel(x: Int, y: Int, r: UInt8, g: UInt8, b: UInt8, a: UInt8) {
+            let i = y * bytesPerRow + x * bytesPerPixel
+            data[i] = r
+            data[i + 1] = g
+            data[i + 2] = b
+            data[i + 3] = a
+        }
+
+        for y in 0..<h {
+            for x in 0..<w {
+                let n = numbers[y * w + x]
+
+                // прозрачные пиксели (если есть)
+                if n == 0 {
+                    putPixel(x: x, y: y, r: 0, g: 0, b: 0, a: 0)
+                    continue
+                }
+
+                // одинаковый светлый тон для всех клеток
+                // (можно сделать разные оттенки по номеру — но пока так)
+                let v: UInt8 = 235
+                putPixel(x: x, y: y, r: v, g: v, b: v, a: 255)
+            }
+        }
+
+        guard let ctx = CGContext(
+            data: &data,
+            width: w,
+            height: h,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ), let cg = ctx.makeImage() else { return nil }
+
+        return UIImage(cgImage: cg, scale: 1, orientation: .up)
+    }
+
 
 
     
@@ -163,6 +208,12 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
                 self.gridView.cellSize = 1
                 self.gridView.configure(width: result.w, height: result.h, numbers: result.numbers)
+                if let preview = self.makeGrayscalePreview(w: result.w, h: result.h, numbers: result.numbers) {
+                    self.previewImageView.image = preview
+                    self.previewImageView.layer.magnificationFilter = .nearest
+                    self.previewImageView.layer.minificationFilter = .nearest
+                }
+
                 self.gridView.setNeedsDisplay()
 
 
@@ -200,6 +251,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         centerContentIfNeeded()
+        gridView.currentZoomScale = scrollView.zoomScale
         updateLOD()
     }
 }
