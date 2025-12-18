@@ -2,13 +2,12 @@ import SwiftUI
 import UIKit
 
 struct PixelArtViewControllerWrapper: UIViewControllerRepresentable {
+    let imageName: String
 
     func makeUIViewController(context: Context) -> UIViewController {
-        ViewController() // наш UIKit-контроллер
+        ViewController(imageName: imageName)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        // ничего не нужно
-    }
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
 

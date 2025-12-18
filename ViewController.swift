@@ -5,7 +5,13 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let scrollView = UIScrollView()
     private let gridView = TiledGridView()
 
-    private let imageName = "pixel-heart-200"
+    private var imageName: String
+    init(imageName: String) {
+        self.imageName = imageName
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
     private let brushOverlay = BrushOverlayView()
     private let brushRadiusCells: Int = 1   // 0 = 1x1, 1 = 3x3, 2 = 5x5
     private let paintHaptic = UIImpactFeedbackGenerator(style: .light)

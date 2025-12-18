@@ -11,7 +11,7 @@ import SwiftUI
 struct pixel_art_2App: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GalleryView()
         }
     }
 }
