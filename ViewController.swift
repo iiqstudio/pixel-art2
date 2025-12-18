@@ -8,7 +8,9 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let imageName = "pixel-heart-200"
     private let brushOverlay = BrushOverlayView()
     private let brushRadiusCells: Int = 1   // 0 = 1x1, 1 = 3x3, 2 = 5x5
-    
+    private let paintHaptic = UIImpactFeedbackGenerator(style: .light)
+    private var lastHapticTime: CFTimeInterval = 0
+    private let hapticInterval: CFTimeInterval = 0.07
     private var selectedNumber: UInt8 = 4
     private let paletteNumbers: [UInt8] = [1,2,3,4,5,6,7,8,9]
     private let paletteColors: [UInt8: UIColor] = [
@@ -195,16 +197,23 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             lastPaintedCell = (x, y)
 
             let added = paintBrush(atX: x, y: y)
-            if added > 0 {
-                paintedForSelected += added
-                // пока у тебя прогресс через print — можешь просто дернуть:
-                bumpProgressIfNeeded(painted: true) // или лучше print через recalcProgress()
+            guard added > 0 else { return }
+
+            paintedForSelected += added
+
+            let now = CACurrentMediaTime()
+            if now - lastHapticTime > hapticInterval {
+                paintHaptic.impactOccurred(intensity: 0.45)
+                paintHaptic.prepare()
+                lastHapticTime = now
             }
+
             if totalForSelected > 0 {
                 let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
                 print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
             }
         }
+
 
         switch gr.state {
         case .began:
@@ -309,6 +318,10 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         let added = paintBrush(atX: x, y: y)
         if added > 0 {
             paintedForSelected += added
+
+            paintHaptic.impactOccurred(intensity: 0.55)
+            paintHaptic.prepare()
+
             if totalForSelected > 0 {
                 let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
                 print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
