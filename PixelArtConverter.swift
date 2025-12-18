@@ -17,14 +17,7 @@ struct RGBColor {
 
 enum PixelArtConverter {
 
-    private static let colorMap: [RGBColor] = [
-        RGBColor(r: 128, g: 128, b: 128, number: 1),
-        RGBColor(r: 0, g: 0, b: 255, number: 2),
-        RGBColor(r: 255, g: 165, b: 0, number: 3),
-        RGBColor(r: 254, g: 0, b: 0, number: 4),
-        RGBColor(r: 255, g: 255, b: 255, number: 5),
-        RGBColor(r: 0, g: 0, b: 0, number: 9)
-    ]
+    private static let colorMap: [RGBColor] = GamePalette.rgbMap
 
     static func convert(imageName: String) -> PixelArtResult? {
         guard let uiImage = UIImage(named: imageName),

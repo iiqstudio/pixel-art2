@@ -17,24 +17,16 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let paintHaptic = UIImpactFeedbackGenerator(style: .light)
     private var lastHapticTime: CFTimeInterval = 0
     private let hapticInterval: CFTimeInterval = 0.07
-    private var selectedNumber: UInt8 = 4
-    private let paletteNumbers: [UInt8] = [1,2,3,4,5,6,7,8,9]
-    private let paletteColors: [UInt8: UIColor] = [
-        1: .systemRed,
-        2: .systemOrange,
-        3: .systemYellow,
-        4: .systemGreen,
-        5: .systemMint,
-        6: .systemTeal,
-        7: .systemBlue,
-        8: .systemIndigo,
-        9: .systemPurple
-    ]
-
+    
+    private let paletteScroll = UIScrollView()
+   
     private let particlesView = ParticleBurstView()
     private var lastParticlesTime: CFTimeInterval = 0
     private let particlesInterval: CFTimeInterval = 0.06
-
+    
+    private let paletteNumbers: [UInt8] = Array(1...29)
+    private let paletteColors: [UInt8: UIColor] = GamePalette.uiColors
+    private var selectedNumber: UInt8 = 1 // или что хочешь дефолтом
     
     private let paletteBar = UIStackView()
     private var paletteButtons: [UIButton] = []
@@ -78,36 +70,59 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func setupPaletteBar() {
+        // Контейнер (фон + скругление)
         paletteBar.axis = .horizontal
         paletteBar.alignment = .center
-        paletteBar.distribution = .fillEqually
+        paletteBar.distribution = .fill
         paletteBar.spacing = 8
         paletteBar.translatesAutoresizingMaskIntoConstraints = false
-
-        // лёгкая подложка, чтобы было видно на любом фоне
-        paletteBar.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.95)
-        paletteBar.layer.cornerRadius = 14
-        paletteBar.layer.masksToBounds = true
         paletteBar.isLayoutMarginsRelativeArrangement = true
         paletteBar.layoutMargins = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
-        view.addSubview(paletteBar)
+        paletteScroll.translatesAutoresizingMaskIntoConstraints = false
+        paletteScroll.showsHorizontalScrollIndicator = false
+        paletteScroll.alwaysBounceHorizontal = true
+        paletteScroll.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.95)
+        paletteScroll.layer.cornerRadius = 14
+        paletteScroll.layer.masksToBounds = true
+
+        view.addSubview(paletteScroll)
 
         NSLayoutConstraint.activate([
-            paletteBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
-            paletteBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
-            paletteBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-            paletteBar.heightAnchor.constraint(equalToConstant: 64)
+            paletteScroll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            paletteScroll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            paletteScroll.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            paletteScroll.heightAnchor.constraint(equalToConstant: 64)
+        ])
+
+        paletteScroll.addSubview(paletteBar)
+
+        // ВАЖНО: фиксируем stack внутри scroll через contentLayoutGuide/frameLayoutGuide
+        NSLayoutConstraint.activate([
+            paletteBar.leadingAnchor.constraint(equalTo: paletteScroll.contentLayoutGuide.leadingAnchor),
+            paletteBar.trailingAnchor.constraint(equalTo: paletteScroll.contentLayoutGuide.trailingAnchor),
+            paletteBar.topAnchor.constraint(equalTo: paletteScroll.contentLayoutGuide.topAnchor),
+            paletteBar.bottomAnchor.constraint(equalTo: paletteScroll.contentLayoutGuide.bottomAnchor),
+
+            // высота stack = высота scroll (чтобы центрировалось по вертикали)
+            paletteBar.heightAnchor.constraint(equalTo: paletteScroll.frameLayoutGuide.heightAnchor)
         ])
 
         paletteButtons = paletteNumbers.map { n in
             let b = makePaletteButton(number: n, color: paletteColors[n] ?? .clear)
+
+            // фикс ширины, чтобы не скукоживалось
+            b.translatesAutoresizingMaskIntoConstraints = false
+            b.widthAnchor.constraint(equalToConstant: 44).isActive = true
+            b.heightAnchor.constraint(equalToConstant: 44).isActive = true
+
             paletteBar.addArrangedSubview(b)
             return b
         }
 
         updatePaletteSelectionUI()
     }
+
     
     private func makePaletteButton(number: UInt8, color: UIColor) -> UIButton {
         var config = UIButton.Configuration.plain()
@@ -134,6 +149,12 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         updatePaletteSelectionUI()
         recalcProgress() // у тебя уже есть :contentReference[oaicite:2]{index=2}
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        
+        if let idx = paletteButtons.firstIndex(of: sender) {
+            let btn = paletteButtons[idx]
+            paletteScroll.scrollRectToVisible(btn.frame.insetBy(dx: -12, dy: -12), animated: true)
+        }
+
     }
 
     private func updatePaletteSelectionUI() {

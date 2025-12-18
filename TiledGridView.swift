@@ -6,8 +6,6 @@ final class TiledGridView: UIView {
     private var tiledLayer: CATiledLayer { layer as! CATiledLayer }
     private let highlightFillColor = UIColor(white: 0.60, alpha: 0.55)
 
-
-
     var gridWidth: Int = 0
     var gridHeight: Int = 0
     var numbers: [UInt8] = []
@@ -31,17 +29,8 @@ final class TiledGridView: UIView {
 
     var baseFillColor: UIColor = UIColor(white: 0.92, alpha: 1)
 
-    private let fillColors: [UInt8: UIColor] = [
-        1: .systemRed,
-        2: .systemOrange,
-        3: .systemYellow,
-        4: .systemGreen,
-        5: .systemMint,
-        6: .systemTeal,
-        7: .systemBlue,
-        8: .systemIndigo,
-        9: .systemPurple
-    ]
+    private let fillColors: [UInt8: UIColor] = GamePalette.uiColors
+
 
 
     override init(frame: CGRect) {
