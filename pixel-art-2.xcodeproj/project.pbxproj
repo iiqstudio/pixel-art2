@@ -10,6 +10,7 @@
 		5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B02EF19B9F0022FB88 /* ViewController.swift */; };
 		5CE049B32EF19C6F0022FB88 /* TiledGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */; };
 		5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */; };
+		5CE049B92EF2F73D0022FB88 /* BrushOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B82EF2F73D0022FB88 /* BrushOverlayView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		5CE049B02EF19B9F0022FB88 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiledGridView.swift; sourceTree = "<group>"; };
 		5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelArtConverter.swift; sourceTree = "<group>"; };
+		5CE049B82EF2F73D0022FB88 /* BrushOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushOverlayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -84,6 +86,7 @@
 		5CE049792EF18FB20022FB88 = {
 			isa = PBXGroup;
 			children = (
+				5CE049B82EF2F73D0022FB88 /* BrushOverlayView.swift */,
 				5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */,
 				5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */,
 				5CE049B02EF19B9F0022FB88 /* ViewController.swift */,
@@ -251,6 +254,7 @@
 				5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */,
 				5CE049B32EF19C6F0022FB88 /* TiledGridView.swift in Sources */,
 				5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */,
+				5CE049B92EF2F73D0022FB88 /* BrushOverlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

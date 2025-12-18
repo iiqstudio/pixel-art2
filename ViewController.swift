@@ -6,6 +6,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let gridView = TiledGridView()
 
     private let imageName = "pixel-heart-200"
+    private let brushOverlay = BrushOverlayView()
+    private let brushRadiusCells: Int = 1   // 0 = 1x1, 1 = 3x3, 2 = 5x5
     
     private var selectedNumber: UInt8 = 4
     private let paletteNumbers: [UInt8] = [1,2,3,4,5,6,7,8,9]
@@ -30,7 +32,20 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     
     private var isPainting = false
     private var lastPaintedCell: (x: Int, y: Int)? = nil
+    
+    private func paintBrush(atX x: Int, y: Int) -> Int {
+        let r = brushRadiusCells
+        var newlyPainted = 0
 
+        for yy in (y - r)...(y + r) {
+            for xx in (x - r)...(x + r) {
+                // paintIfMatches должен возвращать true только если закрасили (у тебя так сейчас, если клетка новая)
+                let ok = gridView.paintIfMatches(x: xx, y: yy, selected: selectedNumber)
+                if ok { newlyPainted += 1 }
+            }
+        }
+        return newlyPainted
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,13 +116,10 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     @objc private func didTapPalette(_ sender: UIButton) {
         selectedNumber = UInt8(sender.tag)
         gridView.selectedNumber = selectedNumber
-
-        // если нужно — прокинь в gridView (если у тебя есть такое свойство)
-        // gridView.selectedNumber = selectedNumber
-
+        brushOverlay.strokeColor = paletteColors[selectedNumber] ?? .white
+        brushOverlay.brushColor = paletteColors[selectedNumber] ?? .systemGreen
         updatePaletteSelectionUI()
         recalcProgress() // у тебя уже есть :contentReference[oaicite:2]{index=2}
-
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
@@ -182,8 +194,16 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             if let last = lastPaintedCell, last.x == x, last.y == y { return }
             lastPaintedCell = (x, y)
 
-            let ok = gridView.paintIfMatches(x: x, y: y, selected: selectedNumber)
-            if ok { bumpProgressIfNeeded(painted: true) }
+            let added = paintBrush(atX: x, y: y)
+            if added > 0 {
+                paintedForSelected += added
+                // пока у тебя прогресс через print — можешь просто дернуть:
+                bumpProgressIfNeeded(painted: true) // или лучше print через recalcProgress()
+            }
+            if totalForSelected > 0 {
+                let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
+                print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
+            }
         }
 
         switch gr.state {
@@ -192,14 +212,21 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             lastPaintedCell = nil
             scrollView.isScrollEnabled = false
             paintAt(x, y)
+            let p = gr.location(in: gridView)
+            brushOverlay.touchPoint = p
+
 
         case .changed:
             guard isPainting else { return }
             paintAt(x, y)
+            let p = gr.location(in: gridView)
+            brushOverlay.touchPoint = p
+
 
         case .ended, .cancelled, .failed:
             isPainting = false
             lastPaintedCell = nil
+            brushOverlay.hide()
             scrollView.isScrollEnabled = true
 
         default:
@@ -209,9 +236,16 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
 
     private func setupGridView() {
+        brushOverlay.brushColor = paletteColors[selectedNumber] ?? .systemGreen
+        gridView.selectedNumber = selectedNumber
         gridView.backgroundColor = .clear
         gridView.isOpaque = false
         scrollView.addSubview(gridView)
+        
+        brushOverlay.frame = gridView.bounds
+        brushOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gridView.addSubview(brushOverlay)
+
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPress.minimumPressDuration = 0.18
@@ -266,15 +300,22 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     }
 
     @objc private func handleTap(_ gr: UITapGestureRecognizer) {
-        if isPainting { return }
-
         let p = gr.location(in: gridView)
+        brushOverlay.touchPoint = p
+        if isPainting { return }
         let x = Int(floor(p.x))
         let y = Int(floor(p.y))
 
-        let ok = gridView.paintIfMatches(x: x, y: y, selected: selectedNumber)
-        if ok {
-            bumpProgressIfNeeded(painted: true)
+        let added = paintBrush(atX: x, y: y)
+        if added > 0 {
+            paintedForSelected += added
+            if totalForSelected > 0 {
+                let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
+                print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            self.brushOverlay.hide()
         }
     }
 
