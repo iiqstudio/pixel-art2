@@ -9,7 +9,7 @@ final class BrushOverlayView: UIView {
     var strokeAlpha: CGFloat = 0.85
     var innerGlowAlpha: CGFloat = 0.35
 
-    var strokeWidth: CGFloat = 2.0
+    var strokeWidth: CGFloat = 0.9
 
 
     var touchPoint: CGPoint? {

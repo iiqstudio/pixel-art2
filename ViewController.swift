@@ -25,6 +25,11 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         9: .systemPurple
     ]
 
+    private let particlesView = ParticleBurstView()
+    private var lastParticlesTime: CFTimeInterval = 0
+    private let particlesInterval: CFTimeInterval = 0.06
+
+    
     private let paletteBar = UIStackView()
     private var paletteButtons: [UIButton] = []
 
@@ -202,17 +207,29 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             paintedForSelected += added
 
             let now = CACurrentMediaTime()
+
+            // ✅ Хаптик (троттлим, чтобы не “пулемётило”)
             if now - lastHapticTime > hapticInterval {
                 paintHaptic.impactOccurred(intensity: 0.45)
                 paintHaptic.prepare()
                 lastHapticTime = now
             }
 
+            // ✅ Пузырьки (троттлим)
+            if now - lastParticlesTime > particlesInterval {
+                let color = paletteColors[selectedNumber] ?? .white
+                let pt = CGPoint(x: CGFloat(x) + 0.5, y: CGFloat(y) + 0.5) // центр клетки
+                particlesView.burst(at: pt, color: color)
+                lastParticlesTime = now
+            }
+
+            // ✅ Прогресс (пока через print)
             if totalForSelected > 0 {
                 let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
                 print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
             }
         }
+
 
 
         switch gr.state {
@@ -254,7 +271,9 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         brushOverlay.frame = gridView.bounds
         brushOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         gridView.addSubview(brushOverlay)
-
+        particlesView.frame = gridView.bounds
+        particlesView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gridView.addSubview(particlesView)
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPress.minimumPressDuration = 0.18
@@ -312,6 +331,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         let p = gr.location(in: gridView)
         brushOverlay.touchPoint = p
         if isPainting { return }
+
         let x = Int(floor(p.x))
         let y = Int(floor(p.y))
 
@@ -319,18 +339,26 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         if added > 0 {
             paintedForSelected += added
 
+            // ✅ Хаптик (тап — можно без троттла)
             paintHaptic.impactOccurred(intensity: 0.55)
             paintHaptic.prepare()
 
+            // ✅ Пузырьки
+            let color = paletteColors[selectedNumber] ?? .white
+            particlesView.burst(at: p, color: color)
+
+            // ✅ Прогресс (пока через print)
             if totalForSelected > 0 {
                 let pct = Int((Double(paintedForSelected) / Double(totalForSelected)) * 100.0)
                 print("Selected \(selectedNumber): \(paintedForSelected)/\(totalForSelected) = \(pct)%")
             }
         }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             self.brushOverlay.hide()
         }
     }
+
 
 
 
