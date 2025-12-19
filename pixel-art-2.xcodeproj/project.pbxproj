@@ -14,6 +14,8 @@
 		5CE049BB2EF3F1740022FB88 /* ParticleBurstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049BA2EF3F1740022FB88 /* ParticleBurstView.swift */; };
 		5CE049C12EF43B0A0022FB88 /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049C02EF43B0A0022FB88 /* GalleryView.swift */; };
 		5CE049C32EF443660022FB88 /* GamePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049C22EF443660022FB88 /* GamePalette.swift */; };
+		5CE049CF2EF580FF0022FB88 /* ContentCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049CE2EF580FF0022FB88 /* ContentCatalog.swift */; };
+		5CE049D12EF586750022FB88 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049D02EF586750022FB88 /* Models.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +46,8 @@
 		5CE049BA2EF3F1740022FB88 /* ParticleBurstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticleBurstView.swift; sourceTree = "<group>"; };
 		5CE049C02EF43B0A0022FB88 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		5CE049C22EF443660022FB88 /* GamePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePalette.swift; sourceTree = "<group>"; };
+		5CE049CE2EF580FF0022FB88 /* ContentCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCatalog.swift; sourceTree = "<group>"; };
+		5CE049D02EF586750022FB88 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -92,6 +96,8 @@
 		5CE049792EF18FB20022FB88 = {
 			isa = PBXGroup;
 			children = (
+				5CE049D02EF586750022FB88 /* Models.swift */,
+				5CE049CE2EF580FF0022FB88 /* ContentCatalog.swift */,
 				5CE049C22EF443660022FB88 /* GamePalette.swift */,
 				5CE049C02EF43B0A0022FB88 /* GalleryView.swift */,
 				5CE049BA2EF3F1740022FB88 /* ParticleBurstView.swift */,
@@ -260,6 +266,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CE049D12EF586750022FB88 /* Models.swift in Sources */,
 				5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */,
 				5CE049C32EF443660022FB88 /* GamePalette.swift in Sources */,
 				5CE049BB2EF3F1740022FB88 /* ParticleBurstView.swift in Sources */,
@@ -267,6 +274,7 @@
 				5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */,
 				5CE049B92EF2F73D0022FB88 /* BrushOverlayView.swift in Sources */,
 				5CE049C12EF43B0A0022FB88 /* GalleryView.swift in Sources */,
+				5CE049CF2EF580FF0022FB88 /* ContentCatalog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

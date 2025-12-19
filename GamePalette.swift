@@ -19,7 +19,7 @@ enum GamePalette {
         12: UIColor(hex: 0x57B9EB), // Небесно-голубой
         13: UIColor(hex: 0xE36DDE), // Орхидея
         14: UIColor(hex: 0xC25227), // Терракотовый
-        15: UIColor(hex: 0xBDB03D), // Оливково-золотой
+        15: UIColor(hex: 0xC25227), // Оливково-золотой
         16: UIColor(hex: 0x5EB838), // Травяной
         17: UIColor(hex: 0xC72A1D), // Темно-красный
         18: UIColor(hex: 0xE88C31), // Оранжевый

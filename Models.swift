@@ -1,8 +1,14 @@
-//
-//  Models.swift
-//  pixel-art-2
-//
-//  Created by Илья Ярославцев on 19.12.2025.
-//
-
 import Foundation
+
+struct Level: Identifiable {
+    let id: String        // удобно = imageName
+    let title: String
+    let imageName: String
+}
+
+struct Category: Identifiable {
+    let id: String
+    let title: String
+    let levels: [Level]
+}
+

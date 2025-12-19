@@ -1,32 +1,35 @@
 import SwiftUI
 
 struct GalleryView: View {
-    private let items: [(title: String, name: String)] = [
-        ("Heart", "pixel-heart-200"),
-        ("Helmet", "helmet100")
-    ]
+    private let categories = ContentCatalog.categories
 
     var body: some View {
         NavigationStack {
-            List(items, id: \.name) { item in
-                NavigationLink {
-                    PixelArtViewControllerWrapper(imageName: item.name)
-                        .ignoresSafeArea()
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(item.name)
-                            .resizable()
-                            .interpolation(.none)
-                            .frame(width: 44, height: 44)
-                            .cornerRadius(8)
-
-                        Text(item.title)
-                            .font(.headline)
+            List {
+                ForEach(categories) { cat in
+                    Section(cat.title) {
+                        ForEach(cat.levels) { level in
+                            NavigationLink {
+                                PixelArtViewControllerWrapper(imageName: level.imageName)
+                                    .ignoresSafeArea()
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(level.imageName)
+                                        .resizable()
+                                        .interpolation(.none)
+                                        .frame(width: 44, height: 44)
+                                        .cornerRadius(8)
+                                    Text(level.title)
+                                        .font(.headline)
+                                }
+                                .padding(.vertical, 6)
+                            }
+                        }
                     }
-                    .padding(.vertical, 6)
                 }
             }
             .navigationTitle("Gallery")
         }
     }
 }
+
