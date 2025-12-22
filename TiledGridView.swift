@@ -42,6 +42,17 @@ final class TiledGridView: UIView {
         super.init(coder: coder)
         commonInit()
     }
+    
+    func applyPainted(_ newPainted: [UInt8]) {
+        guard newPainted.count == gridWidth * gridHeight else { return }
+        painted = newPainted
+        setNeedsDisplay()
+    }
+
+    func resetPainted() {
+        painted = Array(repeating: 0, count: gridWidth * gridHeight)
+        setNeedsDisplay()
+    }
 
     private func commonInit() {
         backgroundColor = .clear

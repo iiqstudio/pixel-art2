@@ -18,6 +18,9 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private var lastHapticTime: CFTimeInterval = 0
     private let hapticInterval: CFTimeInterval = 0.07
     
+    private var saveKeyPainted: String { "painted_v1_\(imageName)" }
+    private var saveKeySelected: String { "selected_v1_\(imageName)" }
+    
     private let paletteScroll = UIScrollView()
    
     private let particlesView = ParticleBurstView()
@@ -37,6 +40,29 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     
     private var isPainting = false
     private var lastPaintedCell: (x: Int, y: Int)? = nil
+    
+    private var pendingSaveWork: DispatchWorkItem?
+    private let saveDebounce: TimeInterval = 0.5
+
+    private func scheduleSaveProgress() {
+        pendingSaveWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.saveProgressNow()
+        }
+        pendingSaveWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + saveDebounce, execute: work)
+    }
+
+    private func saveProgressNow() {
+        guard gridView.gridWidth > 0, gridView.gridHeight > 0 else { return }
+
+        // painted[] -> Data
+        let data = Data(gridView.painted)
+
+        UserDefaults.standard.set(data, forKey: saveKeyPainted)
+        UserDefaults.standard.set(Int(selectedNumber), forKey: saveKeySelected)
+    }
+
     
     private func paintBrush(atX x: Int, y: Int) -> Int {
         let r = brushRadiusCells
@@ -232,6 +258,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             guard added > 0 else { return }
 
             paintedForSelected += added
+            scheduleSaveProgress()
 
             let now = CACurrentMediaTime()
 
@@ -348,11 +375,35 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
                 guard let result else { return }
                 self.gridView.cellSize = 1
                 self.gridView.configure(width: result.w, height: result.h, numbers: result.numbers)
+                self.loadProgressIfAny()
                 self.recalcProgress()
                 self.applyGridSize(w: result.w, h: result.h)
             }
         }
     }
+    
+    private func loadProgressIfAny() {
+        let w = gridView.gridWidth
+        let h = gridView.gridHeight
+        guard w > 0, h > 0 else { return }
+
+        if let data = UserDefaults.standard.data(forKey: saveKeyPainted) {
+            let arr = [UInt8](data)
+            if arr.count == w * h {
+                gridView.applyPainted(arr)
+            }
+        }
+
+        let savedSelected = UserDefaults.standard.integer(forKey: saveKeySelected)
+        if savedSelected > 0 && savedSelected <= 255 {
+            selectedNumber = UInt8(savedSelected)
+            gridView.selectedNumber = selectedNumber
+            updatePaletteSelectionUI()
+        }
+
+        recalcProgress()
+    }
+
 
     @objc private func handleTap(_ gr: UITapGestureRecognizer) {
         let p = gr.location(in: gridView)
@@ -365,7 +416,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         let added = paintBrush(atX: x, y: y)
         if added > 0 {
             paintedForSelected += added
-
+            scheduleSaveProgress()
             // ✅ Хаптик (тап — можно без троттла)
             paintHaptic.impactOccurred(intensity: 0.55)
             paintHaptic.prepare()
@@ -396,6 +447,12 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         gridView.currentZoomScale = scrollView.zoomScale
         centerIfNeeded()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        pendingSaveWork?.cancel()
+        saveProgressNow()
     }
 }
 
