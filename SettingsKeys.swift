@@ -1,8 +1,7 @@
-//
-//  SettingsKeys.swift
-//  pixel-art-2
-//
-//  Created by Илья Ярославцев on 22.12.2025.
-//
 
-import Foundation
+enum SettingsKeys {
+    static let showGrid = "settings_showGrid"
+    static let showNumbers = "settings_showNumbers"
+    static let hapticsEnabled = "settings_hapticsEnabled"
+    static let particlesEnabled = "settings_particlesEnabled"
+}

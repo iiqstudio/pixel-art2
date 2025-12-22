@@ -31,6 +31,9 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let paletteColors: [UInt8: UIColor] = GamePalette.uiColors
     private var selectedNumber: UInt8 = 1 // или что хочешь дефолтом
     
+    private var hapticsEnabled = true
+    private var particlesEnabled = true
+    
     private let paletteBar = UIStackView()
     private var paletteButtons: [UIButton] = []
 
@@ -84,11 +87,17 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
         setupScrollView()
         setupGridView()
+        applySettings()
         setupPaletteBar()
         convertInBackground()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applySettings()
+    }
 
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollView.frame = view.bounds
@@ -148,6 +157,23 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
         updatePaletteSelectionUI()
     }
+    
+    private func applySettings() {
+        let ud = UserDefaults.standard
+
+        // отображение (это уже есть в TiledGridView)
+        let showGrid = ud.object(forKey: SettingsKeys.showGrid) as? Bool ?? true
+        let showNumbers = ud.object(forKey: SettingsKeys.showNumbers) as? Bool ?? true
+        gridView.showGrid = showGrid
+        gridView.showNumbers = showNumbers
+
+        // эффекты (флаги внутри VC)
+        hapticsEnabled = ud.object(forKey: SettingsKeys.hapticsEnabled) as? Bool ?? true
+        particlesEnabled = ud.object(forKey: SettingsKeys.particlesEnabled) as? Bool ?? true
+
+        gridView.setNeedsDisplay()
+    }
+
 
     
     private func makePaletteButton(number: UInt8, color: UIColor) -> UIButton {
@@ -263,19 +289,20 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             let now = CACurrentMediaTime()
 
             // ✅ Хаптик (троттлим, чтобы не “пулемётило”)
-            if now - lastHapticTime > hapticInterval {
+            if hapticsEnabled, now - lastHapticTime > hapticInterval {
                 paintHaptic.impactOccurred(intensity: 0.45)
                 paintHaptic.prepare()
                 lastHapticTime = now
             }
 
             // ✅ Пузырьки (троттлим)
-            if now - lastParticlesTime > particlesInterval {
+            if particlesEnabled, now - lastParticlesTime > particlesInterval {
                 let color = paletteColors[selectedNumber] ?? .white
-                let pt = CGPoint(x: CGFloat(x) + 0.5, y: CGFloat(y) + 0.5) // центр клетки
+                let pt = CGPoint(x: CGFloat(x) + 0.5, y: CGFloat(y) + 0.5)
                 particlesView.burst(at: pt, color: color)
                 lastParticlesTime = now
             }
+
 
             // ✅ Прогресс (пока через print)
             if totalForSelected > 0 {
@@ -339,6 +366,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         tap.cancelsTouchesInView = false
         gridView.addGestureRecognizer(tap)
     }
+    
 
 
     private func applyGridSize(w: Int, h: Int) {
@@ -418,12 +446,16 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             paintedForSelected += added
             scheduleSaveProgress()
             // ✅ Хаптик (тап — можно без троттла)
-            paintHaptic.impactOccurred(intensity: 0.55)
-            paintHaptic.prepare()
-
+            if hapticsEnabled {
+                paintHaptic.impactOccurred(intensity: 0.55)
+                paintHaptic.prepare()
+            }
             // ✅ Пузырьки
-            let color = paletteColors[selectedNumber] ?? .white
-            particlesView.burst(at: p, color: color)
+            if particlesEnabled {
+                let color = paletteColors[selectedNumber] ?? .white
+                particlesView.burst(at: p, color: color)
+            }
+
 
             // ✅ Прогресс (пока через print)
             if totalForSelected > 0 {

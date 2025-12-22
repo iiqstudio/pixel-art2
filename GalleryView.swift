@@ -29,6 +29,14 @@ struct GalleryView: View {
                 }
             }
             .navigationTitle("Gallery")
+            .toolbar {
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+
         }
     }
 }

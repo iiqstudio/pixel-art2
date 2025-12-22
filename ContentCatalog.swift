@@ -21,6 +21,7 @@ enum ContentCatalog {
                 Level(id: "heart-32", title: "Colored Heart", imageName: "heart-32"),
                 Level(id: "alarm-100", title: "Alarmclock", imageName: "alarm-100"),
                 Level(id: "test", title: "Test", imageName: "t0"),
+                Level(id: "goma-1", title: "Goma", imageName: "goma-1"),
             ]
         )
     ]
