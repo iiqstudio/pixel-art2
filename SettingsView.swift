@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKeys.hapticsEnabled) private var hapticsEnabled = true
     @AppStorage(SettingsKeys.particlesEnabled) private var particlesEnabled = true
     @AppStorage(SettingsKeys.showHUD) private var showHUD = true
+    @AppStorage(SettingsKeys.autoAdvanceColor) private var autoAdvanceColor = true
 
     @State private var showResetAllAlert = false
 
@@ -20,6 +21,10 @@ struct SettingsView: View {
             Section("Effects") {
                 Toggle("Haptics", isOn: $hapticsEnabled)
                 Toggle("Particles", isOn: $particlesEnabled)
+            }
+            
+            Section("Gameplay") {
+                Toggle("Auto-advance Color", isOn: $autoAdvanceColor)
             }
 
             Section("Data") {

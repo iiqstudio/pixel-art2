@@ -5,4 +5,5 @@ enum SettingsKeys {
     static let hapticsEnabled = "settings_hapticsEnabled"
     static let particlesEnabled = "settings_particlesEnabled"
     static let showHUD = "settings_showHUD"
+    static let autoAdvanceColor = "settings_autoAdvanceColor"
 }

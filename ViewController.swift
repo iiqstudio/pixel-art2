@@ -41,6 +41,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private var totalPaintable = 0      // сколько клеток нужно закрасить (numbers != 0)
     private var paintedTotal = 0        // сколько уже закрашено (painted != 0)
     private var didShowCongrats = false // чтобы показать модалку 1 раз
+    private var autoAdvanceEnabled = true
 
     private func recalcOverallProgress() {
     let w = gridView.gridWidth
@@ -221,6 +222,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func autoAdvanceIfCompletedSelected() {
+    guard autoAdvanceEnabled else { return }
     guard totalForSelected > 0 else { return }
     guard paintedForSelected >= totalForSelected else { return }
 
@@ -320,6 +322,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         gridView.setNeedsDisplay()
         let showHUD = ud.object(forKey: SettingsKeys.showHUD) as? Bool ?? true
         progressHUD.isHidden = !showHUD
+        autoAdvanceEnabled = ud.object(forKey: SettingsKeys.autoAdvanceColor) as? Bool ?? true
     }
 
 
