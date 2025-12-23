@@ -108,6 +108,75 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         scrollView.frame = view.bounds
         centerIfNeeded()
     }
+
+    private func selectColor(_ n: UInt8, animatedScroll: Bool) {
+    selectedNumber = n
+    gridView.selectedNumber = n
+
+    let c = paletteColors[n] ?? .white
+    brushOverlay.strokeColor = c
+    brushOverlay.brushColor = c
+
+    updatePaletteSelectionUI()
+    recalcProgress()
+
+    if animatedScroll, let btn = paletteButtons.first(where: { UInt8($0.tag) == n }) {
+        paletteScroll.scrollRectToVisible(btn.frame.insetBy(dx: -12, dy: -12), animated: true)
+    }
+    }
+
+    private func findNextIncompleteColor(after current: UInt8) -> UInt8? {
+    // делаем циклический обход 1...29
+    let all = paletteNumbers
+    guard !all.isEmpty else { return nil }
+
+    // стартуем со следующего после current
+    let startIndex = (all.firstIndex(of: current) ?? 0) + 1
+
+    for offset in 0..<all.count {
+        let idx = (startIndex + offset) % all.count
+        let n = all[idx]
+
+        // есть ли вообще клетки этого номера?
+        var total = 0
+        var painted = 0
+
+        let w = gridView.gridWidth
+        let h = gridView.gridHeight
+        guard w > 0, h > 0 else { return nil }
+
+        for i in 0..<(w * h) {
+            if gridView.numbers[i] == n {
+                total += 1
+                if gridView.painted[i] == n { painted += 1 }
+            }
+        }
+
+        if total > 0 && painted < total {
+            return n
+        }
+    }
+
+    return nil
+    }
+
+    private func autoAdvanceIfCompletedSelected() {
+    guard totalForSelected > 0 else { return }
+    guard paintedForSelected >= totalForSelected else { return }
+
+    // текущий цвет завершён → ищем следующий незавершённый
+    if let next = findNextIncompleteColor(after: selectedNumber) {
+        selectColor(next, animatedScroll: true)
+
+        // лёгкий хаптик “переключение”
+        if hapticsEnabled {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+    }
+    }
+
+
+
     
     private func refreshHUD() {
         guard !progressHUD.isHidden else { return }
@@ -305,6 +374,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
 
             paintedForSelected += added
             refreshHUD()
+            autoAdvanceIfCompletedSelected()
             scheduleSaveProgress()
 
             let now = CACurrentMediaTime()
@@ -466,6 +536,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         if added > 0 {
             paintedForSelected += added
             refreshHUD()
+            autoAdvanceIfCompletedSelected()
             scheduleSaveProgress()
             // ✅ Хаптик (тап — можно без троттла)
             if hapticsEnabled {
