@@ -99,7 +99,7 @@ final class TiledGridView: UIView {
         let n = numbers[idx]
         guard n != 0 else { return false }
         guard n == selected else { return false }
-        if painted[idx] == selected { return true }
+        if painted[idx] == selected { return false }
 
         painted[idx] = selected
         let rect = CGRect(x: CGFloat(x) * cellSize, y: CGFloat(y) * cellSize, width: cellSize, height: cellSize)

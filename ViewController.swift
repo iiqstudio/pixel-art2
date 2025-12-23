@@ -109,6 +109,17 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         centerIfNeeded()
     }
     
+    private func refreshHUD() {
+        let barColor = paletteColors[selectedNumber] ?? .systemBlue
+        progressHUD.set(
+            colorNumber: selectedNumber,
+            painted: paintedForSelected,
+            total: totalForSelected,
+            barColor: barColor
+        )
+    }
+
+    
     private func setupPaletteBar() {
         // Контейнер (фон + скругление)
         paletteBar.axis = .horizontal
@@ -251,6 +262,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         } else {
             print("Selected \(selected): 0 cells")
         }
+        refreshHUD()
     }
 
     private func bumpProgressIfNeeded(painted: Bool) {
@@ -289,6 +301,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             guard added > 0 else { return }
 
             paintedForSelected += added
+            refreshHUD()
             scheduleSaveProgress()
 
             let now = CACurrentMediaTime()
@@ -449,6 +462,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         let added = paintBrush(atX: x, y: y)
         if added > 0 {
             paintedForSelected += added
+            refreshHUD()
             scheduleSaveProgress()
             // ✅ Хаптик (тап — можно без троттла)
             if hapticsEnabled {
