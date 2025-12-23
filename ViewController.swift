@@ -37,6 +37,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private var lastPaintedCell: (x: Int, y: Int)? = nil
     private var pendingSaveWork: DispatchWorkItem?
     private let saveDebounce: TimeInterval = 0.5
+    private let congratsOverlay = CongratulationsOverlayView()
     
     private func setupProgressHUD() {
         progressHUD.translatesAutoresizingMaskIntoConstraints = false
@@ -70,6 +71,33 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         UserDefaults.standard.set(Int(selectedNumber), forKey: saveKeySelected)
     }
 
+    private func setupCongratsOverlay() {
+    congratsOverlay.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(congratsOverlay)
+
+    NSLayoutConstraint.activate([
+        congratsOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+        congratsOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        congratsOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+        congratsOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+    ])
+
+    // Кнопки
+    congratsOverlay.onContinue = { [weak self] in
+        self?.congratsOverlay.hide()
+    }
+
+    congratsOverlay.onBackToGallery = { [weak self] in
+        self?.navigationController?.popViewController(animated: true)
+    }
+
+    congratsOverlay.onPickAnother = { [weak self] in
+        // пока просто вернёмся в галерею (следующим шагом сделаем "пикер")
+        self?.navigationController?.popViewController(animated: true)
+    }
+    }
+
+
     
     private func paintBrush(atX x: Int, y: Int) -> Int {
         let r = brushRadiusCells
@@ -95,6 +123,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         applySettings()
         setupPaletteBar()
         convertInBackground()
+        setupCongratsOverlay()
     }
     
     override func viewWillAppear(_ animated: Bool) {
