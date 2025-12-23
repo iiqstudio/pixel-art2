@@ -38,7 +38,43 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private var pendingSaveWork: DispatchWorkItem?
     private let saveDebounce: TimeInterval = 0.5
     private let congratsOverlay = CongratulationsOverlayView()
-    
+    private var totalPaintable = 0      // сколько клеток нужно закрасить (numbers != 0)
+    private var paintedTotal = 0        // сколько уже закрашено (painted != 0)
+    private var didShowCongrats = false // чтобы показать модалку 1 раз
+
+    private func recalcOverallProgress() {
+    let w = gridView.gridWidth
+    let h = gridView.gridHeight
+    guard w > 0, h > 0 else { return }
+
+    var total = 0
+    var painted = 0
+
+    for i in 0..<(w * h) {
+        if gridView.numbers[i] != 0 { total += 1 }
+        if gridView.painted[i] != 0 { painted += 1 }
+    }
+
+        totalPaintable = total
+        paintedTotal = painted
+    }
+
+    private func maybeShowCongratulations() {
+    guard !didShowCongrats else { return }
+    guard totalPaintable > 0 else { return }                 // важно: пока не загрузили картинку — не показывать
+    guard paintedTotal >= totalPaintable else { return }      // 100%
+
+    didShowCongrats = true
+    view.bringSubviewToFront(congratsOverlay)
+    congratsOverlay.show()
+
+        if hapticsEnabled {
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        }
+    }
+
+
+
     private func setupProgressHUD() {
         progressHUD.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(progressHUD)
@@ -90,12 +126,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     congratsOverlay.onBackToGallery = { [weak self] in
         self?.navigationController?.popViewController(animated: true)
     }
-
-    congratsOverlay.onPickAnother = { [weak self] in
-        // пока просто вернёмся в галерею (следующим шагом сделаем "пикер")
-        self?.navigationController?.popViewController(animated: true)
-    }
-    }
+}
 
 
     
@@ -402,6 +433,9 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
             guard added > 0 else { return }
 
             paintedForSelected += added
+            paintedTotal += added
+            maybeShowCongratulations()
+
             refreshHUD()
             autoAdvanceIfCompletedSelected()
             scheduleSaveProgress()
@@ -524,6 +558,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
                 self.gridView.cellSize = 1
                 self.gridView.configure(width: result.w, height: result.h, numbers: result.numbers)
                 self.loadProgressIfAny()
+                self.recalcOverallProgress()
+                self.maybeShowCongratulations()
                 self.recalcProgress()
                 self.applyGridSize(w: result.w, h: result.h)
             }
@@ -564,6 +600,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         let added = paintBrush(atX: x, y: y)
         if added > 0 {
             paintedForSelected += added
+            paintedTotal += added
+            maybeShowCongratulations()
             refreshHUD()
             autoAdvanceIfCompletedSelected()
             scheduleSaveProgress()

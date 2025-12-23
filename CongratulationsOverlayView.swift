@@ -3,7 +3,6 @@ import UIKit
 final class CongratulationsOverlayView: UIView {
 
     var onBackToGallery: (() -> Void)?
-    var onPickAnother: (() -> Void)?
     var onContinue: (() -> Void)?
 
     private let dim = UIView()
@@ -13,7 +12,6 @@ final class CongratulationsOverlayView: UIView {
     private let subtitleLabel = UILabel()
 
     private let backButton = UIButton(type: .system)
-    private let anotherButton = UIButton(type: .system)
     private let continueButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
@@ -50,18 +48,14 @@ final class CongratulationsOverlayView: UIView {
         backButton.setTitle("Back to Gallery", for: .normal)
         backButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
 
-        anotherButton.setTitle("Color Another", for: .normal)
-        anotherButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         continueButton.tintColor = .systemGreen
 
         backButton.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
-        anotherButton.addTarget(self, action: #selector(didTapAnother), for: .touchUpInside)
         continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
 
-        let buttons = UIStackView(arrangedSubviews: [continueButton, anotherButton, backButton])
+        let buttons = UIStackView(arrangedSubviews: [continueButton, backButton])
         buttons.axis = .vertical
         buttons.spacing = 10
 
@@ -120,7 +114,6 @@ final class CongratulationsOverlayView: UIView {
     }
 
     @objc private func didTapBack() { onBackToGallery?() }
-    @objc private func didTapAnother() { onPickAnother?() }
     @objc private func didTapContinue() { onContinue?() }
 }
 
