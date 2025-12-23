@@ -110,6 +110,7 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func refreshHUD() {
+        guard !progressHUD.isHidden else { return }
         let barColor = paletteColors[selectedNumber] ?? .systemBlue
         progressHUD.set(
             colorNumber: selectedNumber,
@@ -188,6 +189,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
         particlesEnabled = ud.object(forKey: SettingsKeys.particlesEnabled) as? Bool ?? true
 
         gridView.setNeedsDisplay()
+        let showHUD = ud.object(forKey: SettingsKeys.showHUD) as? Bool ?? true
+        progressHUD.isHidden = !showHUD
     }
 
 

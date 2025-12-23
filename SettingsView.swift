@@ -5,6 +5,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKeys.showNumbers) private var showNumbers = true
     @AppStorage(SettingsKeys.hapticsEnabled) private var hapticsEnabled = true
     @AppStorage(SettingsKeys.particlesEnabled) private var particlesEnabled = true
+    @AppStorage(SettingsKeys.showHUD) private var showHUD = true
 
     @State private var showResetAllAlert = false
 
@@ -13,6 +14,7 @@ struct SettingsView: View {
             Section("Display") {
                 Toggle("Grid", isOn: $showGrid)
                 Toggle("Numbers", isOn: $showNumbers)
+                Toggle("Progress HUD", isOn: $showHUD)
             }
 
             Section("Effects") {
