@@ -10,6 +10,7 @@
 		5C9852F02EF974F500008E49 /* SettingsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9852EF2EF974F500008E49 /* SettingsKeys.swift */; };
 		5C9852F22EF9759600008E49 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9852F12EF9759600008E49 /* SettingsView.swift */; };
 		5C9852F42EF975BA00008E49 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9852F32EF975BA00008E49 /* ProgressStore.swift */; };
+		5C9853062EFA705100008E49 /* ProgressHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9853052EFA705100008E49 /* ProgressHUDView.swift */; };
 		5CE049B12EF19B9F0022FB88 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B02EF19B9F0022FB88 /* ViewController.swift */; };
 		5CE049B32EF19C6F0022FB88 /* TiledGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B22EF19C6F0022FB88 /* TiledGridView.swift */; };
 		5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE049B42EF19D7C0022FB88 /* PixelArtConverter.swift */; };
@@ -42,6 +43,7 @@
 		5C9852EF2EF974F500008E49 /* SettingsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsKeys.swift; sourceTree = "<group>"; };
 		5C9852F12EF9759600008E49 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5C9852F32EF975BA00008E49 /* ProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
+		5C9853052EFA705100008E49 /* ProgressHUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUDView.swift; sourceTree = "<group>"; };
 		5CE049822EF18FB20022FB88 /* pixel-art-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pixel-art-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CE0498F2EF18FB30022FB88 /* pixel-art-2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pixel-art-2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CE049992EF18FB30022FB88 /* pixel-art-2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pixel-art-2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,6 +104,7 @@
 		5CE049792EF18FB20022FB88 = {
 			isa = PBXGroup;
 			children = (
+				5C9853052EFA705100008E49 /* ProgressHUDView.swift */,
 				5C9852F32EF975BA00008E49 /* ProgressStore.swift */,
 				5C9852F12EF9759600008E49 /* SettingsView.swift */,
 				5C9852EF2EF974F500008E49 /* SettingsKeys.swift */,
@@ -285,6 +288,7 @@
 				5CE049B52EF19D7C0022FB88 /* PixelArtConverter.swift in Sources */,
 				5CE049B92EF2F73D0022FB88 /* BrushOverlayView.swift in Sources */,
 				5CE049C12EF43B0A0022FB88 /* GalleryView.swift in Sources */,
+				5C9853062EFA705100008E49 /* ProgressHUDView.swift in Sources */,
 				5CE049CF2EF580FF0022FB88 /* ContentCatalog.swift in Sources */,
 				5C9852F22EF9759600008E49 /* SettingsView.swift in Sources */,
 			);

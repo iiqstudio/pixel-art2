@@ -17,35 +17,39 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     private let paintHaptic = UIImpactFeedbackGenerator(style: .light)
     private var lastHapticTime: CFTimeInterval = 0
     private let hapticInterval: CFTimeInterval = 0.07
-    
+    private let progressHUD = ProgressHUDView()
     private var saveKeyPainted: String { "painted_v1_\(imageName)" }
     private var saveKeySelected: String { "selected_v1_\(imageName)" }
-    
     private let paletteScroll = UIScrollView()
-   
     private let particlesView = ParticleBurstView()
     private var lastParticlesTime: CFTimeInterval = 0
     private let particlesInterval: CFTimeInterval = 0.06
-    
     private let paletteNumbers: [UInt8] = Array(1...29)
     private let paletteColors: [UInt8: UIColor] = GamePalette.uiColors
     private var selectedNumber: UInt8 = 1 // или что хочешь дефолтом
-    
     private var hapticsEnabled = true
     private var particlesEnabled = true
-    
     private let paletteBar = UIStackView()
     private var paletteButtons: [UIButton] = []
-
-
     private var totalForSelected = 0
     private var paintedForSelected = 0
-    
     private var isPainting = false
     private var lastPaintedCell: (x: Int, y: Int)? = nil
-    
     private var pendingSaveWork: DispatchWorkItem?
     private let saveDebounce: TimeInterval = 0.5
+    
+    private func setupProgressHUD() {
+        progressHUD.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(progressHUD)
+
+        NSLayoutConstraint.activate([
+            progressHUD.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            progressHUD.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            progressHUD.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            progressHUD.heightAnchor.constraint(equalToConstant: 78)
+        ])
+    }
+
 
     private func scheduleSaveProgress() {
         pendingSaveWork?.cancel()
@@ -84,7 +88,8 @@ final class ViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-
+        
+        setupProgressHUD()
         setupScrollView()
         setupGridView()
         applySettings()
